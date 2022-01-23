@@ -1,0 +1,75 @@
+TABLE OF CONTENTS
+=================
+
+1.  Exposition
+2.  Installation
+3.  Usage
+
+EXPOSITION
+==========
+
+We here present the language of fully parenthesized additions,
+multiplications and let-bindings over the natural numbers, along with an
+executeble semantics in the form of an interpreter written in Joos1.
+
+The language and its abstract syntax closely resemble each other, and in
+a LISP-y setting like Scheme they would have been identical, cf. the
+grammar of the language below:
+
+        <expression> ::= <natural number>
+                       | <variable>
+                       | (+ <expression> <expression>)
+                       | (* <expression> <expression>)
+                       | (let <variable> <expression> <expression>)
+
+    <natural number> ::= 0 
+                       | 1
+                       | 2
+                       ...
+
+          <variable> ::= a single, non-numerical character
+
+In a language without abstract datatypes like joos1, we instead leverage
+the class-system to represent our recursive data, with a superclass and
+a family of descendants representing the data-type and its constructors,
+respectively.
+
+Evaluation is done in a recursive manner, passing an immutable
+environment around - less idiomatic for a java program, but very
+intuitive to code and, moreso, understand.
+
+The parser of the supplied interpreter is by far the most complex piece
+of code in this program, though it's still a very simple exercise in
+language processing. It's a run-of-the-mill recursive descent parser,
+whose only complexity lies in handling whitespace in the input, which
+could have been avoided by introducing a pre-parsing tokenization
+process.
+
+INSTALLATION
+============
+
+With camljoos2 on your path, run
+
+    make install
+
+USAGE
+=====
+
+The intepreter can either be launched in REPL (Read-Eval-Print-Loop) or
+direct mode.
+
+To launch in REPL mode, run
+
+    java Interpreter
+
+providing a prompt at which expressions to be evaluated can be entered
+in the concrete syntax of the language. Typing exit will exit the
+interpreter.
+
+To evaluate an expression directly, you can supply it at the
+command-line:
+
+    java Interpreter "<expression>"
+
+Note that the quotes are compulsory, while the <expression> part should
+be substituted by a term in the language.

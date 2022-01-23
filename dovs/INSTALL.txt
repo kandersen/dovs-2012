@@ -1,0 +1,539 @@
+#-*- mode: org; coding: utf-8-dos; -*-
+#
+#+TITLE:     dOvs 2012 -- INSTALL.txt
+#+DATE:      Time-stamp: <2012-08-27 23:56:04 jmi>
+#+AUTHOR:    Ian Zerny <zerny@cs.au.dk>
+#+LINK_HOME: http://cs.au.dk/dOvs
+#+BEGIN_HTML
+<link href="style.css" rel=stylesheet type="text/css" />
+#+END_HTML
+# --------------------------------------------------------------------
+#
+# This INSTALL file contains help for installing and using tools
+# related to the dOvs course. You can find the latest version as a
+# nice HTML file at:
+#
+#   http://cs.au.dk/~mis/dOvs/INSTALL.html
+#
+# Alternatively you can simply browse this text file, or generate an
+# HTML file from it with Emacs. Simply open this file and type:
+#
+#   C-c C-e h
+#
+# This will generate the file INSTALL.html
+#
+# If you browse the raw text version notice the markup conventions:
+#
+#   *bold*
+#   /italic/
+#   =inline code=
+#
+# And a block of code or an example is prefixed with colons.
+# For example:
+#
+#   : let foo () =
+#   :   print_string "Hello ";
+#   :   print_string "World!";
+#   :   print_newline ()
+#
+# The rest should be fairly clear from the context.
+#
+# When browsing with Emacs, use TAB to expanded/collapsed sections.
+#
+# Happy Hacking!
+# --------------------------------------------------------------------
+
+This document describes how to install and use the tools related to
+the dOvs course. For help on compiling and using the Caml Joos
+skeleton consult the [[file:README.html][README.txt]] document.
+
+* Prerequisites
+
+** Java
+
+   Make sure you have a recent version of the Java language installed
+   for your system.
+
+   - *Windows*: via http://www.java.com/en/download/
+   - *Mac OS X*: should be pre-installed on your system
+   - *Debian/Ubuntu*: =sudo apt-get install openjdk-6-jre=
+
+
+* OCaml
+
+** Installation
+
+*** Windows (via Cygwin)
+
+    This setup has been tested on Windows XP and Windows 7. It might
+    also work on Windows Vista. You will need about 500 MB of disk
+    space for the installation.
+
+    The dOvs course uses Cygwin which provides a simple package system
+    and UNIX-like interface for Windows.  Most of the tools needed for
+    dOvs will be installed with Cygwin such as the [[http://www.gnu.org/software/make/][GNU Make]] build
+    system and the [[http://caml.inria.fr/][OCaml]] programming language.
+
+    *Notice*: do not install Emacs from within Cygwin.  See the
+    Section on [[*Emacs][Emacs]] for how best to install Emacs on Windows.
+
+    Download and save the Cygwin installer somewhere on your system:
+
+      http://www.cygwin.com/setup.exe
+
+    Run setup.exe to continue the installation:
+
+    1. Choose /Install from Internet/.
+
+    2. Choose a suitable location (default "C:\cygwin" is ok).
+
+    3. Choose suitable network settings.
+
+    4. Choose a mirror (http://mirrors.dotsrc.org is a good choice).
+
+    5. In addition to the default set of packages select:
+
+       - Devel / *libncurses-devel*: (devel) libraries for terminal handling
+       - Devel / *make*: The GNU version of the 'make' utility
+       - Devel / *zlib-devel*: The zlib compression/decompression library (development)
+       - Interpreters / *m4*: GNU implementation of the traditional Unix macro processor
+       - Interpreters / *ocaml*: The Objective Caml compiler and runtime (install helper)
+       - Interpreters / *ocaml-base*: The Objective Caml compiler and runtime (base system)
+       - Interpreters / *ocaml-camlp4*: The Objective Caml compiler and runtime (campl4)
+       - Interpreters / *ocaml-compiler-libs*: The Objective Caml compiler and runtime (compiler binaries)
+       - Libs / *libreadline6*: GNU readline and history libraries (runtime)
+       - Utils / *ncurses*: Utilities for terminal handling
+       - Utils / *rlwrap*: Wraps GNU readline around keyboard input of any command
+
+    6. When resolving dependencies make sure that /Select required
+       packages (RECOMMENDED)/ is activated. (The installation will
+       take some time.)
+
+    7. Finish by letting the installer create a shortcut on your
+       desktop or in your start menu.
+
+    8. Add Cygwin to your PATH environment variable.
+
+       Right click on /Computer/ and select /Properties/, /Advanced
+       system settings/, /Environment Variables.../, then find and
+       edit the /Path/ variable by adding the following at the end of
+       the existing value separated by a semi-colon. For example:
+
+	 : existing-value;C:\cygwin\bin
+
+	 where =C:\cygwin= is the location where you installed Cygwin.
+
+       On Windows 7, the /Program Compatibility Assistant/ might pop
+       up. Just click /This program installed correctly/.
+
+       After installation you should have a desktop and/or start menu
+       item to start a Cygwin shell. This should open a black
+       command-line window containing text that looks similar to:
+
+         : user@host ~
+         : $ 
+
+       It might start by copying some skeleton files.  If your result
+       otherwise deviates (except for the choice of user and host) you
+       should redo the installation or consult your TA.
+
+    9. Install the parser generator /Menhir/.
+
+
+       First download Menhir from: http://gallium.inria.fr/~fpottier/menhir/menhir-20120123.tar.gz
+
+
+       Now open a Cygwin shell and navigate to the download directory:
+
+         : $ cd Downloads
+
+           where =Downloads= is the location you downloaded the file to.
+
+
+       Unpack the downloaded file: 
+
+         : $ tar -xvzf menhir-20120123.tar.gz
+
+
+       Enter the directory:
+
+         : $ cd menhir-20120123
+
+
+       Compile and install Menhir:
+         : $ make PREFIX=C:/cygwin TARGET=byte all install
+
+           where =C:/cygwin= is the location where you installed Cygwin.
+
+
+       Finally you can check the menhir installation:
+         : $ menhir --version
+         : menhir, version 20120123
+         :
+         : $
+
+
+    If your installation was a success, you can continue in Section
+    [[*Usage][Usage]].
+
+
+*** Mac OS X (via MacPorts)
+
+    1. Install Apple Developer Tools from the AppStore.
+
+    2. Install MacPorts with the /Mac OS X Package (.pkg) Installer/
+       from http://macports.org/install.php
+
+    3. Install OCaml plus some utilities. Start a terminal (find
+       Terminal via Spotlight). Clicking /Terminal/ should open a
+       window with the prompt:
+
+       : host:~ user$
+
+       where =host= and =user= depend on your host and user.
+       Type =sudo port install ocaml ocaml-menhir rlwrap=, 
+       i.e, the prompt should look like:
+
+       : host:~ user$ sudo port install ocaml ocaml-menhir rlwrap
+
+       and hit enter.
+
+    If your installation was a success, you can continue in Section
+    [[*Usage][Usage]].
+
+
+*** Debian and Ubuntu (via APT)
+
+    Start a terminal from /Applications > Accessories > Terminal/.
+    This should open a window with the prompt:
+
+    : user@host:~$
+
+    Now type the following command at the prompt and hit enter to
+    install OCaml and other dependencies:
+
+    : user@host:~$ sudo apt-get install ocaml menhir rlwrap m4 zlib1g-dev
+
+    If your installation was a success, you can continue in Section
+    [[*Usage][Usage]].
+
+
+*** Other systems
+
+    The dOvs setup should work on any system that provides the basic
+    GNU utilities. You will need (at least) the following tools and
+    libraries to compile and run the system:
+
+    - GNU Make
+    - GNU m4 macro processor
+    - OCaml including the camlp4 and ocamlbuild systems
+    - zlib development files
+    - ncurses development files
+
+    Depending on your system, other dependencies might appear when
+    trying to build the Joos source code and utilities.
+
+
+** Usage
+
+   Now, lets start OCaml. Type in =rlwrap ocaml=, i.e., your shell
+   should look something like:
+
+   : user@host ~
+   : $ rlwrap ocaml
+   :      Objective Caml version 3.12.0
+   : 
+   : #
+
+   If your result deviates (except for the version number) you should
+   redo the installation or consult your TA.
+
+   The hash mark, =#=, indicates the OCaml prompt. Here you can type
+   in expression for OCaml to evaluate, such as =40 + 2=. To signal
+   that your input is done, type two semicolons. For example:
+
+   : # 40 + 2;;
+   : - : int = 42
+   : # 
+
+   To exit the OCaml toplevel, type Control + D, i.e., end-of-file or
+   type =#quit;;=, i.e.:
+
+   : # #quit;;
+
+   *Remarks*:
+
+   The =rlwrap= command just makes the OCaml prompt easier to use by
+   enabling editing of text already typed in and history (by pressing
+   the up and down arrows).
+
+   Also, we will usually not be using the toplevel in this way.
+   For the rest of the course you should be interacting with OCaml
+   directly from your editor (e.g., Emacs or Eclipse).
+
+
+** Troubleshooting
+
+    If, in Windows, OCaml gives an error about not being able to open
+    /Pervasives.cmi/ then you have most likely installed OCaml without
+    use of Cygwin. In this case, uninstall the native OCaml
+    installation (just leave the Cygwin one alone) and then delete the
+    system environment variable OCAMLLIB. This can be done in:
+    /Computer > Properties > Advanced system settings > Environment Variables/.
+
+
+
+
+* Emacs
+
+   Note: If you are using Eclipse, you do *not* need Emacs.
+
+** Installation
+*** Windows
+
+    Windows users can use the official windows binary located at:
+
+      http://ftp.gnu.org/pub/gnu/emacs/windows/
+
+    Download the zip-file (the -bin file) and unpack it to your
+    desired install location. No further installation should be
+    necessary. More information on installation and setup can be found
+    in the README file.
+
+    Try it out: Run =bin/emacs.exe= from the emacs installation
+    folder. Emacs should open. Press
+
+    : Control + x, Control + c
+
+    (abbreviated =C-x C-c=) and answer y to close it again. To install
+    Emacs shortcuts in your menu run =bin/addpm.exe=.
+
+    For Emacs to work with Cygwin, insert the following into your
+    =~/.emacs= file. I.e, start Emacs, press =C-x C-f=, type
+    =~/.emacs= and hit enter.
+    To paste (in Emacs jargon referred to as /yank/), press =C-y=.
+
+    : ;; Cygwin paths
+    : (add-to-list 'exec-path "C:/cygwin/bin")
+    : (setenv "PATH" (concat "C:/cygwin/bin;" (getenv "PATH")))
+
+*** Mac OS X
+
+OS X users can find a "vanilla" [[http://emacsformacosx.com/][Emacs for OS X]] which we recommend
+using. Alternatively [[http://homepage.mac.com/zenitani/emacs-e.html][Carbon Emacs]] and [[http://aquamacs.org/][Aquamacs]] are variants of Emacs
+customized specifically for OS X.
+
+*** Debian and Ubuntu, etc...
+
+    *nix users should use the package manager of their host system.
+
+    - Ubuntu and Debian based systems: =sudo apt-get install emacs=
+    - RedHat and Suse based systems: =sudo yum install emacs=
+    - etc...
+
+** General setup
+
+    After installing Emacs, you can configure it by adding the
+    following to your =~/.emacs= file which will help give you a
+    better Emacs experience.
+
+    - Open =~/.emacs= by pressing =Control + x= and then =Control + f=
+      (abbreviated =C-x C-f=).
+
+    - Now type in exactly =~/.emacs= and hit return.
+
+      This will open up your ~/.emacs file which is most likely
+      empty. Paste the following code into the buffer by
+      pressing =Control + y=:
+
+      : ;; General setup
+      : (setq inhibit-startup-message t)  ; dont show the GNU splash screen
+      : (transient-mark-mode t)           ; show selection from mark
+      : (setq visible-bell 1)             ; turn off bip warnings
+      : (show-paren-mode t)               ; turn on highlight paren mode
+      : (fset 'yes-or-no-p 'y-or-n-p)     ; use y and n for questions
+      : (global-font-lock-mode t)         ; enable syntax highlighting
+      : (iswitchb-mode 1)                 ; better buffer switching
+
+      Now save the file by pressing =Control + x= and then =Control + s=.
+      From now on we will refer to the above sequence as =C-x C-s=,
+      or in short =C-x-s=.
+
+** Tuareg mode for OCaml
+
+    Debian and Ubuntu users should run 
+    : sudo apt-get install tuareg-mode
+    and continue with the section on [[Emacs Usage][Usage]].
+
+    For everyone else, download the tuareg zip-file from the "Files" section of:
+      https://forge.ocamlcore.org/projects/tuareg/
+   
+    Unpack the files to a desired location and remember that location.
+    Now start Emacs and open your =~/.emacs= file (i.e., with =C-x C-f=).
+
+    Somewhere after your general setup paste the following code in
+    your ~/.emacs file, where =TUAREG_PATH= has been replaced by the
+    full path to the directory containing "tuareg.el" (ie, the place
+    where you unpacked the zip archive, such as "c:/tuareg-2.0.4/").
+
+    *Notice*: the =TUAREG_PATH= should use Unix style paths even on
+    Windows.
+
+    : ;; Tuareg setup
+    : (add-to-list 'load-path "TUAREG_PATH")
+    : (add-to-list 'auto-mode-alist '("\\.ml[iylp]?" . tuareg-mode))
+    : (autoload 'tuareg-mode "tuareg" "Major mode for editing Caml code" t)
+    : (autoload 'camldebug "camldebug" "Run the Caml debugger" t)
+
+    After saving the changes to your ~/.emacs restart Emacs.
+
+** Usage
+# <<Emacs Usage>>
+
+   Start Emacs and open a test file, such as =c:/test.ml=, and
+   in this file write the following code:
+
+   : 2 + 2
+
+   and then press the key sequence:
+
+   : Control + c, Control + b
+
+   This will ask for the OCaml name (the default "ocaml" should work), start
+   an OCaml toplevel process and send the contents of the buffer (i.e.,
+   2 + 2) to the OCaml toplevel. The result should look like:
+
+    :         Objective Caml version 3.12.0
+    : 
+    : # 2 + 2;;
+    : - : int = 4
+    : # 
+
+   If your result deviates (except for the version number) you should
+   redo the installation or consult you TA.
+
+   Cheat sheet for Tuareg:
+     http://www.ocamlpro.com/files/tuareg-mode.pdf
+
+
+* Eclipse
+
+   Note: If you are using Emacs, you do *not* need Eclipse.
+
+** Installation
+
+    1. Install and start /Eclipse Classic/ (i.e., you do not need extensions for Java etc.):
+
+       - *Windows* and *Mac OS X*:
+	 Download from http://www.eclipse.org/downloads/,
+         unpack the files and run the eclipse binary in the unpacked folder.
+
+       - *Debian/Ubuntu*: =sudo apt-get install eclipse=
+
+    2. Now start Eclipse and select a workspace.
+
+    3. In the menu, select /Help > Install New Software.../.
+       In the /Work with/ field, enter:
+
+       : http://www.algo-prog.info/ocaide/
+
+       and check the /OcaIDE Category/ entry.
+
+    4. Hit /Next/ a few times and agree to the license. Accept the
+       installation of unsigned content.
+
+    5. Finally, Windows users should restart their system and start Eclipse again.
+
+    6. Setup paths to the OCaml tools:
+
+       If Eclipse has not automatically found the program paths you
+       will need to set them manually.
+
+       Open /Window > Preferences > OcaIDE > Paths/ or
+            /Eclipse > Preferences > OcaIDE > Paths/.
+       In the /O'Caml Binaries Directory/ field type in the path to
+       the OCaml binaries. For example (on Windows):
+
+       : C:\cygwin\bin
+
+       and hit apply. This should automatically fill in the OCaml
+       related tools. Under /Other tools/ fill in the path to make (it
+       is the same prefix as for OCaml). For example (on Windows):
+
+       : C:\cygwin\bin\make.exe
+
+       and finally fill in the library path. This should be the prefix
+       up to but not including =bin= followed by =lib\ocaml=. For
+       example:
+
+       : C:\cygwin\lib\ocaml
+
+       That's it.
+
+** Usage
+
+    Start Eclipse and select a workspace. To use the OCaml
+    functionality select /Window > Open Perspective > Other.../ and
+    then choose the /O'Caml/ perspective.
+
+    The following steps detail how to start a new project.  Notice
+    that the dOvs Joos source code is already packaged as a project so
+    this setup does not apply for the Joos project.
+
+    1. Right-click in the navigator menu and select:
+       /New > OCaml Project (ocamlbuild)/.
+       Choose a project name and click /Finish/.
+
+    2. Right-click on the Foo project in the navigator and select:
+       /New > Module/. Lets give the file name "hello".
+
+    3. In the file window fill in some OCaml code. For example:
+
+       : let foo () =
+       :   print_endline "Hello World!"
+
+    4. To add the new module as a target for the compiler right-click
+       on the project in the navigator and select /Properties/. Under
+       /Project/ you should add the following to the /Targets/ area:
+
+       : hello.byte
+
+       and press OK. This instructs OCaml to compile hello.ml to OCaml
+       byte-code.
+
+    5. Now compile the files (either with the automatic build or by
+       pressing the build button).
+
+    6. The /OCaml Compiler Output/ tab should show a successful build
+       and your /Outline/ window should display an element /foo/ of
+       type /unit/ to /unit/:
+
+       : foo : unit -> unit
+
+    7. To load the Hello module into the toplevel first select the
+       /OCaml Toplevel/ tab, then right-click on /hello.ml/ and select
+       /Load in Toplevel/. At the bottom of the tab you can input
+       OCaml expressions. Try typing:
+
+       : Hello.foo ();;
+
+       This should display:
+
+       : Hello World!
+       : - : unit ()
+       : #
+
+
+# * Version Control
+
+#   Regarding version control: do not upload your source code to a
+#   publicly available location. The dOvs course is run each year and
+#   making your code available to future students could jeopardize said
+#   students' education. In other words: do *not* use github,
+#   source-forge or similar services.
+
+# ** SVN
+
+# ** Git
+
+------------------------------------------------------------

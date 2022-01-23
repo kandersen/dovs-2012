@@ -1,0 +1,18 @@
+// PARSER_WEEDER,INVALID_SOURCE_FILE_NAME
+/**
+ * Parser/weeder: 
+ *- A class declaration must reside in a .java source file
+ *  with the same base name as the class.
+ */
+
+public class Je_1_ClassDeclaration_WrongFileName { 
+
+    public Je_1_ClassDeclaration_WrongFileName() {} 
+
+    public static void main(String[] args) { 
+    } 
+
+    public static int test() {
+	return 7;
+    } 
+} 

@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="JBasics.FieldMap.html">
+<link rel="next" href="JBasics.ClassMethodMap.html">
+<link rel="Up" href="JBasics.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="JBasics" rel="Chapter" href="JBasics.html">
+<link title="JBasicsLow" rel="Chapter" href="JBasicsLow.html">
+<link title="JCode" rel="Chapter" href="JCode.html">
+<link title="JClassLow" rel="Chapter" href="JClassLow.html">
+<link title="JSignature" rel="Chapter" href="JSignature.html">
+<link title="JClass" rel="Chapter" href="JClass.html">
+<link title="JDumpBasics" rel="Chapter" href="JDumpBasics.html">
+<link title="JUnparseSignature" rel="Chapter" href="JUnparseSignature.html">
+<link title="JDumpLow" rel="Chapter" href="JDumpLow.html">
+<link title="JDumpJasmin" rel="Chapter" href="JDumpJasmin.html">
+<link title="JParseCode" rel="Chapter" href="JParseCode.html">
+<link title="JInstruction" rel="Chapter" href="JInstruction.html">
+<link title="JUnparse" rel="Chapter" href="JUnparse.html">
+<link title="JParseSignature" rel="Chapter" href="JParseSignature.html">
+<link title="JParse" rel="Chapter" href="JParse.html">
+<link title="JLow2High" rel="Chapter" href="JLow2High.html">
+<link title="JHigh2Low" rel="Chapter" href="JHigh2Low.html">
+<link title="JFile" rel="Chapter" href="JFile.html">
+<link title="JManifest" rel="Chapter" href="JManifest.html">
+<link title="Javalib" rel="Chapter" href="Javalib.html">
+<link title="Ptmap" rel="Chapter" href="Ptmap.html">
+<link title="Ptset" rel="Chapter" href="Ptset.html"><title>Javalib : JBasics.ClassFieldMap</title>
+</head>
+<body>
+<div class="navbar"><a href="JBasics.FieldMap.html">Previous</a>
+&nbsp;<a href="JBasics.html">Up</a>
+&nbsp;<a href="JBasics.ClassMethodMap.html">Next</a>
+</div>
+<center><h1>Module <a href="type_JBasics.ClassFieldMap.html">JBasics.ClassFieldMap</a></h1></center>
+<br>
+<pre><span class="keyword">module</span> ClassFieldMap: <code class="type"><a href="JBasics.GenericMapSig.html">GenericMapSig</a></code><code class="type">  with type key = class_field_signature</code></pre>This module allows to build maps of elements indexed by <code class="code">class_field_signature</code> values.<br>
+<hr width="100%">
+<pre><span class="keyword">type</span> <a name="TYPEt"></a><code class="type">'a</code> t </pre>
+
+<pre><span class="keyword">type</span> <a name="TYPEkey"></a><code class="type"></code>key </pre>
+
+<pre><span class="keyword">val</span> <a name="VALempty"></a>empty : <code class="type">'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALis_empty"></a>is_empty : <code class="type">'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> bool</code></pre><pre><span class="keyword">val</span> <a name="VALadd"></a>add : <code class="type"><a href="JBasics.GenericMapSig.html#TYPEkey">key</a> -><br>       'a -> 'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> 'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALmodify"></a>modify : <code class="type"><a href="JBasics.GenericMapSig.html#TYPEkey">key</a> -><br>       ('a option -> 'a) -> 'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> 'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALfind"></a>find : <code class="type"><a href="JBasics.GenericMapSig.html#TYPEkey">key</a> -> 'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> 'a</code></pre><pre><span class="keyword">val</span> <a name="VALremove"></a>remove : <code class="type"><a href="JBasics.GenericMapSig.html#TYPEkey">key</a> -><br>       'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> 'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALmem"></a>mem : <code class="type"><a href="JBasics.GenericMapSig.html#TYPEkey">key</a> -> 'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> bool</code></pre><pre><span class="keyword">val</span> <a name="VALiter"></a>iter : <code class="type">(<a href="JBasics.GenericMapSig.html#TYPEkey">key</a> -> 'a -> unit) -><br>       'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> unit</code></pre><pre><span class="keyword">val</span> <a name="VALmap"></a>map : <code class="type">('a -> 'b) -> 'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> 'b <a href="JBasics.GenericMapSig.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALmapi"></a>mapi : <code class="type">(<a href="JBasics.GenericMapSig.html#TYPEkey">key</a> -> 'a -> 'b) -><br>       'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> 'b <a href="JBasics.GenericMapSig.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALfold"></a>fold : <code class="type">(<a href="JBasics.GenericMapSig.html#TYPEkey">key</a> -> 'a -> 'b -> 'b) -><br>       'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> 'b -> 'b</code></pre><pre><span class="keyword">val</span> <a name="VALcompare"></a>compare : <code class="type">('a -> 'a -> int) -><br>       'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> 'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> int</code></pre><pre><span class="keyword">val</span> <a name="VALequal"></a>equal : <code class="type">('a -> 'a -> bool) -><br>       'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> 'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> bool</code></pre><pre><span class="keyword">val</span> <a name="VALmerge"></a>merge : <code class="type">('a -> 'a -> 'a) -><br>       'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -><br>       'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> 'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a></code></pre><div class="info">
+<code class="code">merge f m1 m2</code> returns a map that has the bindings of <code class="code">m1</code> and <code class="code">m2</code> and
+        which binds <code class="code">k</code> to <code class="code">f d1 d2</code> if <code class="code">m1</code> and <code class="code">m2</code> binds the same <code class="code">k</code> to
+        different <code class="code">d1</code> and <code class="code">d2</code>, respectively. If <code class="code">d1</code> equals <code class="code">d2</code>, <code class="code">f d1 d2</code> is
+        supposed to return <code class="code">d1</code>.<br>
+</div>
+<pre><span class="keyword">val</span> <a name="VALchoose_and_remove"></a>choose_and_remove : <code class="type">'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -><br>       <a href="JBasics.GenericMapSig.html#TYPEkey">key</a> * 'a * 'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a></code></pre><div class="info">
+<code class="code">choose_and_remove t</code> returns (i,d,t') such that <code class="code">t'</code> equals to <code class="code">remove
+        i t</code> and <code class="code">d</code> equals to <code class="code">find i t</code>.<br>
+<b>Raises</b> <code>Not_found</code> if <code class="code">t</code> is empty.<br>
+</div>
+<pre><span class="keyword">val</span> <a name="VALfilter"></a>filter : <code class="type">('a -> bool) -> 'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> 'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALfilteri"></a>filteri : <code class="type">(<a href="JBasics.GenericMapSig.html#TYPEkey">key</a> -> 'a -> bool) -><br>       'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> 'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALkey_elements"></a>key_elements : <code class="type">'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> <a href="JBasics.GenericMapSig.html#TYPEkey">key</a> list</code></pre><pre><span class="keyword">val</span> <a name="VALvalue_elements"></a>value_elements : <code class="type">'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> 'a list</code></pre><pre><span class="keyword">val</span> <a name="VALelements"></a>elements : <code class="type">'a <a href="JBasics.GenericMapSig.html#TYPEt">t</a> -> (<a href="JBasics.GenericMapSig.html#TYPEkey">key</a> * 'a) list</code></pre></body></html>

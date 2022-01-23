@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="Up" href="Ptmap.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="JBasics" rel="Chapter" href="JBasics.html">
+<link title="JBasicsLow" rel="Chapter" href="JBasicsLow.html">
+<link title="JCode" rel="Chapter" href="JCode.html">
+<link title="JClassLow" rel="Chapter" href="JClassLow.html">
+<link title="JSignature" rel="Chapter" href="JSignature.html">
+<link title="JClass" rel="Chapter" href="JClass.html">
+<link title="JDumpBasics" rel="Chapter" href="JDumpBasics.html">
+<link title="JUnparseSignature" rel="Chapter" href="JUnparseSignature.html">
+<link title="JDumpLow" rel="Chapter" href="JDumpLow.html">
+<link title="JDumpJasmin" rel="Chapter" href="JDumpJasmin.html">
+<link title="JParseCode" rel="Chapter" href="JParseCode.html">
+<link title="JInstruction" rel="Chapter" href="JInstruction.html">
+<link title="JUnparse" rel="Chapter" href="JUnparse.html">
+<link title="JParseSignature" rel="Chapter" href="JParseSignature.html">
+<link title="JParse" rel="Chapter" href="JParse.html">
+<link title="JLow2High" rel="Chapter" href="JLow2High.html">
+<link title="JHigh2Low" rel="Chapter" href="JHigh2Low.html">
+<link title="JFile" rel="Chapter" href="JFile.html">
+<link title="JManifest" rel="Chapter" href="JManifest.html">
+<link title="Javalib" rel="Chapter" href="Javalib.html">
+<link title="Ptmap" rel="Chapter" href="Ptmap.html">
+<link title="Ptset" rel="Chapter" href="Ptset.html"><title>Javalib : Ptmap.S</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a href="Ptmap.html">Up</a>
+&nbsp;</div>
+<center><h1>Module type <a href="type_Ptmap.S.html">Ptmap.S</a></h1></center>
+<br>
+<pre><span class="keyword">module type</span> S = <code class="code"><span class="keyword">sig</span></code> <a href="Ptmap.S.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+<pre><span class="keyword">type</span> <a name="TYPEt"></a><code class="type">+'a</code> t </pre>
+
+<pre><span class="keyword">type</span> <a name="TYPEkey"></a><code class="type"></code>key = <code class="type">int</code> </pre>
+
+<pre><span class="keyword">val</span> <a name="VALempty"></a>empty : <code class="type">'a <a href="Ptmap.S.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALis_empty"></a>is_empty : <code class="type">'a <a href="Ptmap.S.html#TYPEt">t</a> -> bool</code></pre><pre><span class="keyword">val</span> <a name="VALadd"></a>add : <code class="type">?merge:('a -> 'a -> 'a) -> int -> 'a -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'a <a href="Ptmap.S.html#TYPEt">t</a></code></pre><div class="info">
+<code class="code">add ~merge:f k d m</code> returns a map containing the same bindings as
+      <code class="code">m</code>, plus a binding of <code class="code">k</code> to <code class="code">d</code>.  If <code class="code">k</code> was already bound to
+      <code class="code">d'</code> in <code class="code">m</code>, then the value <code class="code">f d' d</code> is added instead of <code class="code">d</code>.  If
+      no merge function is specified, then the previous bindings is
+      simply discard.<br>
+<b>Author(s):</b> Laurent Hubert<br>
+</div>
+<pre><span class="keyword">val</span> <a name="VALmodify"></a>modify : <code class="type">int -> ('a option -> 'a) -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'a <a href="Ptmap.S.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALfind"></a>find : <code class="type">int -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'a</code></pre><pre><span class="keyword">val</span> <a name="VALremove"></a>remove : <code class="type">int -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'a <a href="Ptmap.S.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALmem"></a>mem : <code class="type">int -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> bool</code></pre><pre><span class="keyword">val</span> <a name="VALiter"></a>iter : <code class="type">(int -> 'a -> unit) -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> unit</code></pre><pre><span class="keyword">val</span> <a name="VALmap"></a>map : <code class="type">('a -> 'b) -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'b <a href="Ptmap.S.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALmapi"></a>mapi : <code class="type">(int -> 'a -> 'b) -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'b <a href="Ptmap.S.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALfold"></a>fold : <code class="type">(int -> 'a -> 'b -> 'b) -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'b -> 'b</code></pre><pre><span class="keyword">val</span> <a name="VALcompare"></a>compare : <code class="type">('a -> 'a -> int) -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> int</code></pre><pre><span class="keyword">val</span> <a name="VALequal"></a>equal : <code class="type">('a -> 'a -> bool) -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> bool</code></pre><pre><span class="keyword">val</span> <a name="VALmerge"></a>merge : <code class="type">('a -> 'a -> 'a) -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'a <a href="Ptmap.S.html#TYPEt">t</a></code></pre><div class="info">
+<code class="code">merge f m1 m2</code> returns a map that has the bindings of <code class="code">m1</code> and <code class="code">m2</code> and
+      which binds <code class="code">k</code> to <code class="code">f d1 d2</code> if <code class="code">m1</code> and <code class="code">m2</code> binds the same <code class="code">k</code> to
+      different <code class="code">d1</code> and <code class="code">d2</code>, respectively. If <code class="code">d1</code> equals <code class="code">d2</code>, <code class="code">f d1 d2</code> is
+      supposed to return <code class="code">d1</code>.<br>
+<b>Author(s):</b> Laurent Hubert<br>
+</div>
+<pre><span class="keyword">val</span> <a name="VALmerge_first"></a>merge_first : <code class="type">'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'a <a href="Ptmap.S.html#TYPEt">t</a></code></pre><div class="info">
+<code class="code">merge_first m1 m2</code> is the same as <code class="code">merge (<span class="keyword">fun</span> a _ <span class="keywordsign">-&gt;</span> a) m1 m2</code> but it
+      reuses more data from the first map.<br>
+</div>
+<pre><span class="keyword">val</span> <a name="VALdiff"></a>diff : <code class="type">('a -> 'a -> bool) -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'a <a href="Ptmap.S.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALchoose_and_remove"></a>choose_and_remove : <code class="type">'a <a href="Ptmap.S.html#TYPEt">t</a> -> int * 'a * 'a <a href="Ptmap.S.html#TYPEt">t</a></code></pre><div class="info">
+<code class="code">choose_and_remove t</code> returns (i,d,t') such that <code class="code">t'</code> equals to
+      <code class="code">remove i t</code> and <code class="code">d</code> equals to <code class="code">find i t</code>.<br>
+<b>Author(s):</b> Laurent Hubert<br>
+<b>Raises</b> <code>Not_found</code> if <code class="code">t</code> is empty.<br>
+</div>
+<pre><span class="keyword">val</span> <a name="VALinter"></a>inter : <code class="type">'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'b <a href="Ptmap.S.html#TYPEt">t</a> -> 'a <a href="Ptmap.S.html#TYPEt">t</a></code></pre><div class="info">
+<code class="code">inter m1 m2</code> returns a map with all the bindings <code class="code">(k,d)</code> of <code class="code">m1</code> such
+      that <code class="code">mem k m2</code>.<br>
+</div>
+<pre><span class="keyword">val</span> <a name="VALcardinal"></a>cardinal : <code class="type">'a <a href="Ptmap.S.html#TYPEt">t</a> -> int</code></pre><pre><span class="keyword">val</span> <a name="VALexists"></a>exists : <code class="type">(int -> 'a -> bool) -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> bool</code></pre><pre><span class="keyword">val</span> <a name="VALfilter"></a>filter : <code class="type">('a -> bool) -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'a <a href="Ptmap.S.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALfilteri"></a>filteri : <code class="type">(int -> 'a -> bool) -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'a <a href="Ptmap.S.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALfilter_map"></a>filter_map : <code class="type">('a -> 'b option) -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'b <a href="Ptmap.S.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALpartition"></a>partition : <code class="type">('a -> bool) -> 'a <a href="Ptmap.S.html#TYPEt">t</a> -> 'a <a href="Ptmap.S.html#TYPEt">t</a> * 'a <a href="Ptmap.S.html#TYPEt">t</a></code></pre><pre><span class="keyword">val</span> <a name="VALelements"></a>elements : <code class="type">'a <a href="Ptmap.S.html#TYPEt">t</a> -> (int * 'a) list</code></pre><div class="info">
+<code class="code">elements m</code> return the unsorted list of bindings of <code class="code">m</code>.<br>
+</div>
+</body></html>

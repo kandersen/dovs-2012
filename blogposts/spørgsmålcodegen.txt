@@ -1,0 +1,148 @@
+Codegen fase is all about generating jasmin byte-code for the program
+to run on the virtual machine. This face translates our AST into
+another AST that holds a bytecode representation. This is therefore
+another tree generating phase, and we will solve this using the same
+approach as prevoius AST building phases.
+
+For all known statements in our resource-ast, we translate to a
+byte-code template, that has the same effect running on the virtual
+machine as we expect our higher level syntax statements should
+have. For a discussion about templates see 3) below.
+
+Most of the templates has been defined in the slides, so below we will
+only discuss the more peculiar or the ones we have defined our selves:
+
+Method invocation and constructor invocation:
+----------------------------------------------- 
+This would seem like something hard to do, but the template is very
+easy. Push the methods paremeters on the stacks, and call the
+appropriate method. If we call a method on an interface, we should use
+invokeinterface in stead of invoke virtual. If the method is static,
+then we just invokestatic.
+
+Notice, that the amount of parameters each method-stack-section has
+been calculated in resources, and we just relay this information in
+the helper defined by codegen_method_sig_known.
+
+Constructor invocation follow the same pattern.
+
+LValue
+-----------------------------------
+Whenever handling lvalues, we really need to be careful in what we are
+doing. In joos, we have four types of lvalues: Local, NonstaticField,
+StaticField and Array, and depending on a direct reference or
+assignment, we need to handle each case individually.
+
+As a rule of thumb, if we have a basic-type we use a byte-code
+instruction starting with i, and for reference type we use something
+starting with a. The reason there is a difference is, that the JVM
+need to know exactly how to fetch variables from either the stack or
+the heap. A special case is then arrays, where instructions for
+specific basic arrays type are supported directly by the byte-code
+instruction set. Although a lot of pattern matching occurs in the
+code, it should be fairly readable.
+
+Casting
+-------------------------------
+Casting has 3 built in instructions for simple types, and a checkcast
+function for handling reference types. When wor
+
+Binop
+-----------------------------------
+It would be pretty hard to create any type of useful program if no
+binary operations where defined. Binary operations are in a way
+special, because a lot of the basic operations has an instruction,
+like iadd, isub, imul, ixor and so on.
+
+Lazy evaluations, are defined as first checking the first boolean
+expression, and depending on the need for knowing the value of the
+other expression, we have an if guarding the second expression.
+
+Unop
+-----------------------------------
+For Unops we found inspiration in the Joos0 compiler, for converting
+primitive types to strings. The code is really simple, we just need to
+know exactly which valueof to call.
+
+If
+----------------------------------
+Ifs are a special construct. For the record, the reference compiler
+and the templates are not doing the same thing. In bytecode we jump if
+the condition are true, where we in Java do not jump - we execute the
+next line.
+
+We created two helpers, one for if-statements and one for
+if-compare-statements - they both do the same, so we will only explain
+one.
+
+The method takes three arguments, a condition a list of instructions
+to execute if true, and a list of instructions if the condition is
+false. If that list is empty, there are no need for a jump in the true
+case, so we just skip that part.
+
+While
+----------------------------------
+If the expression guarding the while is the boolean constant true,
+then the pattern is special, it is just a label, a statement and a
+loop. Otherwise, the construct is a bit different than one would
+expect. We have the condition expression after the staments, and
+immediatly jump to first evaluate the expression. In this way, we save
+a jump when the expression is no longer true.
+ 
+SuperCall
+----------------------------------
+SuperCall is really important - not only is it a super-call. For
+calling the super constructor, the behaviour is already described. But
+we also have as an invariant, that the super-call is the first thing
+that happens in a constructor, therefore also when constructing that
+particular object. That means, that all non-static fields, which have
+an init-expression should be set at this point. But we do not have
+access to the fields in the node in the AST for the super-call, so we
+needed to pass down information in the info object from
+codegen_members.
+
+
+1) 
+translation the java code into jasmin following the slide will
+produce something similar to
+
+iflt false1
+iconst_0
+goto end1
+false1
+iconst_1
+end1
+nop
+ifeq false2
+bipush 42
+ireturn
+false2
+nop
+bipush 123
+ireturn
+
+2)
+
+iflt false1
+bipush 42
+goto end
+false1
+bipush 123
+end
+ireturn
+
+3)
+This is simply because it is much easier to use templates. With templates it is much simpler to just specify the general structure of a program once in a simple manner and then be able to generate working code. This generated code might, by no means, be optimal as the example also shows. The problem with generating optimal byte code is that a lot more effort must be use when generating the byte code. At compile time we need to spend more time analysing the content of the instructions we want to add to maybe try and optimize. However since optimization is no trivial matter and who knows if we are optimizing towards performance or memory usages i could be stupid for the code generation phase to optimize since it would be difficult to change it later. But it is always a trade off. We could implement a much smarter code generation phase but this would force us to make the now simple phase much more complicated. The bad byte code that is generated can later be optimized if need be and by having the optimization in a seperated phase we can also easily change if we no longer wants to make the program run faster but use less memory. 
+
+4) 
+ifeq false
+bipush 42
+bipush 12
+goto end
+false
+bipush 123
+end
+
+This program, will depending on the test, either place one or two integers on the stack.
+5)
+Her er jeg i tvivl. Er det fordi at hvis f.eks den næste instruktion er en idiv så kan verifiern ikke være sikker på at der faktisk ligger det korrekte antal elementer på stacken eller er det noget andet. Synes ikke rigtig jeg kan gennemsku det. Tror dog det er pga det første men er meget i tvivl.!!!!"#

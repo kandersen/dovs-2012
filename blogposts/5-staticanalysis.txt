@@ -1,0 +1,84 @@
+TABLE OF CONTENTS
+=================
+
+1.  Overview
+2.  'Bonus Questions'
+
+1. OVERVIEW
+-----------
+
+The static analysis phase consists of two distinct analyses, at least
+in Joos2. The hand-in initially consists of a single, proper analysis,
+the 'reachability' analysis as defined in the JLS, in addition to a
+full Joos2 'definite assignment' analysis with certain checks in place
+to conform to Joos1 when such is appropriate.
+
+The concepts of inherited and synthesized attributed lends themselves
+well to functional, recursive tree traversals, with inherited
+attributes translating to function arguments and synthesized
+attributes corresponding to return values, which has been strictly
+done in both analyses.
+
+The reachability analysis makes use of two attributes, the inherited
+'reachable' and the synthesized 'completes normally', both boolean
+conditions, that is threaded by 'reach_block', and manipulated by
+'reach_stmt'. The analysis is started by 'reach_body'.
+
+The definite assignment defines 4 attributes, one inherited and 3
+synthesized, but the code lugs around 4 synthesized attributes, as the
+analysis needs to keep track of variables in scope, in addition to the
+variables assigned before and after, a detail that is made quite
+subtle in the specification of the analysis.
+
+The code for both analyses is remarkably close to the definition on
+the slide.
+
+2. 'BONUS QUESTIONS'
+--------------------   
+
+* Give an example of a program containing some dead code, i.e. one or
+  more unreachable statements, which is rejected by the reachability
+  analysis.
+
+  The body of the following while-loop is unreachable, as the
+  terminating condition is hardwired to `false`:
+
+    while (false) {
+      // INSERT UNREACHABLE CODE HERE
+    } 
+  
+* Give an example of a program containing some dead code which is
+  accepted by the reachability analysis.
+
+  The true-branch of the following if-statement is, in any possible
+  run unreachable. Why the analysis rejects the hard-wired while and
+  not the hard-wired false can be attributed to programmer usability:
+  like suggested by JLS 14.20, the 'false' value might be an inlined
+  debug constant, that, at compile time is seen as a boolean const.
+
+    if (false) {
+      // INSERT UNREACHABLE CODE HERE
+    }
+   
+* Give an example of a method where the reachability analysis requires a
+  void-return to be inserted.
+
+  Here the analysis detects a void method body that completes
+  normally, which means it inserts a void return statement as the very
+  last statement.
+
+    public void test_method() {
+      int x = 42;
+      // "return;" inserted here by analysis
+    }
+
+* Give an example of a method where the reachability analysis detects a
+  missing value-return.
+  
+  Similarly, in this case, the analysis here detects a non-void method
+  completing normally, but it cannot make the decision as to what to
+  return and therefore signals an error.
+
+    public int test_method2() {
+      int x = 42;
+    } 

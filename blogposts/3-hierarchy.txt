@@ -1,0 +1,112 @@
+
+Hierarchy phase should check for the well-formedness class-hierarchy which is suprisingly complex, but can be established by a few different rules.
+
+First of all, we make sure to check for simple constraints, to make sure there are no duplicate methods and constructors with same parameters declared. We also check for extended classes are not final, and that all implements should be interfaces. The simple constraints are trivial to implement.
+
+We then tried to the best of our ability to create the sets described on the slides from lectures. We decided, that we would use OCaml Sets to describe the different sets - this would automatically take care of duplicates, so no extra implementation needed.
+
+General observations
+--------------------
+We use simple techniques for checking constraints in the set. If we need to find out if something is true for a methodset, related to it self or another structure, we would used two nested for_all, like so:
+
+  List.for_all (fun super ->
+    let contain_set = create_contains_method_set super tenv in
+    MethodSet.for_all (fun (_,m') -> 
+    ...
+
+This results in a bool we can user later.
+
+If we do not need a return type, we use iter to iterate - this could also be nested, for example when finding duplicate inherited fields, where we for each element in a field set need to iterate over the collection again, to find any field with the same signature.
+
+HACK 1
+------
+java.lang.Object extends itself, so we need to handle this - this is done simply by:
+
+    if (can_name = c.Types.class_extends)
+
+This works, because our first wellformed constraint checks for cyclic dependencies.
+	
+HACK 2
+------
+This is a bigger hack. Interfaces implicitly extends java.lang.Object's public methods if it has no super-interfaces. So we handle this by:
+
+  let is_interface = Types.is_interface named_type in
+  let no_extends = (super_members named_type can_name) = [] in
+  let inherit_set = 
+    (if is_interface && no_extends
+     then (
+       let lang_object = (CanonicalName.make "java.lang.Object") in
+       let obj_declare_set = create_declare_method_set lang_object tenv in
+       create_abstract_methods_for_all_public_methods obj_declare_set)
+     else create_inherit_method_set can_name tenv) in
+
+create_abstract_methods_for_all_public_methods does exactly what its name says. 	 
+
+Super set CanonicalNameSet (CanonicalName)
+------------------------------------------
+This is the set of strictly super objects of T. We start by adding all supers (extend + implements) to the set - then find supers for all set members, and continuing in this fashion. When we don't see any changes to the set, we know, that the entire super set is included in our set.
+
+This is a special set, and should not be confused with super_members which is the direct supers for a class or interface.
+
+Declare set MethodSet(can_nameme * thod_type)
+---------------------------------------------
+The declare set is the locally declared fields and methods for a class.
+
+Inherit set MethodSet(can_name * method_type)
+------------------------------------
+Inherit set is the inherit set for a class, where some strange rules about abstract is implemented. The set is an inductive type, so we need to do mutually recursion on the contain set for the super.
+
+Contain set MethodSet(can_name * method_type)
+----------------------------------------------
+This is mutually recursively defined with the inherit set. This started of by a simple union, but we need to handle interfaces implicitly implementing java.lang.Object, so this is where HACK 2 is applied.
+
+Auxillary function - allab
+--------------------------
+This function tries to figure out recursively, if all supers that implement this method, implement it abstractly. If so, it has not been replaced an belong in the inherit set. This is done like so:
+
+  let named_type = lookup_named_type can_name tenv in
+  let supers = super_members named_type can_name in
+  List.for_all (fun super ->
+    let contain_set = create_contains_method_set super tenv in
+    MethodSet.for_all (fun (_,m') -> 
+      if (method_signature_equal m m')
+      then m'.Types.method_abstract
+      else true) contain_set) supers
+
+Again, we use for_all, to figure out, if all supers inherit it abstractly. We return true if the method signature is not equal, so that if a method signature does not exists, it does not break the code later on.
+	  
+Replace list (method_type * method_type) list
+---------------------------------------------
+The replace list was the hardest to compute. This does two things:
+	
+	1) First find all local replaces which is straight forward
+	2) Find all replaces in super. We need to check the entire contain set of supers for an abstract version and an non-abstract version of methods with equal signature. The below does the job:
+	
+	  let m_type = (snd m) in
+      let m'_type = (snd m') in
+      let sig_equal = method_signature_equal m_type m'_type in
+      let nodecl = nodecl_lookup m_type (List.map snd declare_list) in
+      let m_abstract = m_type.Types.method_abstract in
+      let m'_abstract = m'_type.Types.method_abstract in
+      if sig_equal && nodecl && (not m_abstract) && m'_abstract
+      then [(m_type,m'_type)]
+      else []
+
+Constraints
+-----------
+In order to check the wellformed constraint 1, we build a super set for the type - then it is easy to find cyclic implements.
+
+After this, we can check all other wellformed constraints. We do this by building all the sets, and passing this along to each check-method. In this way, we only calculate the sets one for each class. Below, we will only describe some of the more interesting checks:
+
+Constraint 4
+------------
+This check is really simple, if the sets are implemented correctly. But when testing, we received an error multiple times. This was because interfaces inherit java.lang.Object if no super-interfaces are declared. This is was solved by HACK 2. 
+
+Constraint 8
+------------
+This check is special when we inherit methods. Let us call m the replacing method and m' the replaced method, e the error for m and e' the error for m'. First, we are allowed to use e!=e' if e' is a super of e. We are also allowed to uncheck errors if this is either runtime or error. It is beatifully described by iterating through our Replace-list.
+
+Phase summery
+-------------
+There are room for improvements when considering running time - we calculate a lot of sets multiple times, which could be avoided. On way to do this is, when simple and the first wellformed check is completede for all classes, we could create a map of method-sets for all classes and implements. This way, we would only calculate a method set once for each class or interface.
+This would make the code less readable so we decided to wait until the review for this phase has been completed and optimize when implementing Joos 2.

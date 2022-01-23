@@ -1,0 +1,255 @@
+TABLE OF CONTENTS
+=================
+
+1.  Overview
+2.  Code Generation
+3.  Resources
+4.  'Bonus Questions'
+
+1. OVERVIEW 
+----------- 
+
+We are so close to have a fully working Joos1 compiler. This step is
+actually the last step needed before a fully working compiler is in
+place. There are two parts to this step, one generating byte-code and
+one doing analysis on register-allocation. Below are two phases
+described in more detail.
+
+2. CODE GENERATION
+------------------
+
+The Codegen phase is all about generating
+jasmin byte-code for the program to run on the virtual machine. This
+face translates our AST into another AST that holds a bytecode
+representation. This is therefore another tree generating phase, and
+we will solve this using the same approach as prevoius AST building
+phases.
+
+For all known statements in our resource-ast, we translate to a
+byte-code template, that has the same effect running on the virtual
+machine as we expect our higher level syntax statements should
+have. For a discussion about templates see 3) below.
+
+Most of the templates has been defined in the slides, so below we will
+only discuss the more peculiar or the ones we have defined our selves:
+
+Method invocation
+-----------------
+
+This would seem like something hard to do, but the template is very
+easy. Push the methods paremeters on the stacks, and call the
+appropriate method. If we call a method on an interface, we should use
+invokeinterface in stead of invoke virtual. If the method is static,
+then we just invokestatic.
+
+Notice, that the amount of parameters each method-stack-section has
+been calculated in resources, and we just relay this information in
+the helper defined by codegen_method_sig_known.
+
+Constructor invocation follow the same pattern.
+
+Lvalue
+------
+
+Whenever handling lvalues, we really need to be careful in what we are
+doing. In joos, we have four types of lvalues: Local, NonstaticField,
+StaticField and Array, and depending on a direct reference or
+assignment, we need to handle each case individually.
+
+As a rule of thumb, if we have a basic-type we use a byte-code
+instruction starting with i, and for reference type we use something
+starting with a. The reason there is a difference is, that the JVM
+need to know exactly how to fetch variables from either the stack or
+the heap. A special case is then arrays, where instructions for
+specific basic arrays type are supported directly by the byte-code
+instruction set. Although a lot of pattern matching occurs in the
+code, it should be fairly readable.
+
+Casting
+-------
+
+Casting has 3 built in instructions for simple types, and a checkcast
+function for handling reference types. When wor
+
+Binop
+-----
+
+It would be pretty hard to create any type of useful program if no
+binary operations where defined. Binary operations are in a way
+special, because a lot of the basic operations has an instruction,
+like iadd, isub, imul, ixor and so on.
+
+Lazy evaluations, are defined as first checking the first boolean
+expression, and depending on the need for knowing the value of the
+other expression, we have an if guarding the second expression.
+
+Unop
+----
+
+For Unops we found inspiration in the Joos0 compiler, for converting
+primitive types to strings. The code is really simple, we just need to
+know exactly which valueof to call.
+
+If
+--
+
+Ifs are a special construct. For the record, the reference compiler
+and the templates are not doing the same thing. In bytecode we jump if
+the condition are true, where we in Java do not jump - we execute the
+next line.
+
+We created two helpers, one for if-statements and one for
+if-compare-statements - they both do the same, so we will only explain
+one.
+
+The method takes three arguments, a condition a list of instructions
+to execute if true, and a list of instructions if the condition is
+false. If that list is empty, there are no need for a jump in the true
+case, so we just skip that part.
+
+While
+-----
+
+If the expression guarding the while is the boolean constant true,
+then the pattern is special, it is just a label, a statement and a
+loop. Otherwise, the construct is a bit different than one would
+expect. We have the condition expression after the staments, and
+immediatly jump to first evaluate the expression. In this way, we save
+a jump when the expression is no longer true.
+ 
+SuperCall
+---------
+
+SuperCall is really important - not only is it a super-call. For
+calling the super constructor, the behaviour is already described. But
+we also have as an invariant, that the super-call is the first thing
+that happens in a constructor, therefore also when constructing that
+particular object. That means, that all non-static fields, which have
+an init-expression should be set at this point. But we do not have
+access to the fields in the node in the AST for the super-call, so we
+needed to pass down information in the info object from
+codegen_members.
+
+
+3. RESOURCES
+------------
+
+The `Resource' phase is tasked with register allocation. The provided
+skeleton does a very conservative allocation, allocating each local
+variable and paremeter to a separate register to avoid clashes.
+
+This is of course sub optimal in terms of used registers. It can be
+argued that being clever with register allocation now can only make it
+more difficult for the JVMs JIT compiler, but that is beside the
+point: for paedagogical reasons, it's interesting to improve on the
+situation.
+
+The code in this hand-in includes a 'better' solution, per definition
+of the slides. It exploits the fact that a local variable that is _no
+longer_ in scope will never be read again, and its register can thus
+be reused. Implementation wise it's as easy as passing the counter
+used to allocate registers _around_ blocks as opposed to through them.
+
+To be continued... >:)
+
+4. 'BONUS QUESTIONS'
+--------------------   
+
+1. Translating
+
+     public int m(int a, int b) {
+       if (a < b) {
+         return 42;
+       }
+       return 123;
+     }  
+
+   into Jasmin code based on the templates given on the slides will
+   produce something akin to (the signature header and stack are not important):
+   
+      .method public m
+      .limit stack 2
+      .limit locals 2
+      iload 1
+      iload 2
+      iflt false1
+      iconst_0
+      goto end1
+      false1
+      iconst_1
+      end1
+      nop
+      ifeq false2
+      bipush 42
+      ireturn
+      false2
+      nop
+      bipush 123
+      ireturn
+      .end method
+
+2. It could be written more succintly as
+
+      .method public m
+      .limit stack 2
+      .limit locals 2
+      iload 1
+      iload 2
+      iflt false1
+      bipush 42
+      goto end
+      false1		
+      bipush 123
+      end
+      ireturn
+      .end method
+
+3. We use the first technique simply because it is much easier to use
+   templates. With templates it is much simpler to just specify the
+   general structure of a program once in a simple manner and then be
+   able to generate working code. This generated code might, by no
+   means, be optimal as the example also shows.
+
+   The problem with generating optimal byte code is that a lot more
+   effort must be used when generating the byte code. At compile time
+   we need to spend more time analysing the content of the
+   instructions we want to add to maybe try and optimize. However,
+   since optimization is no trivial matter and who knows if we are
+   optimizing towards performance or memory usage, it could be stupid
+   for the code generation phase to optimize since it would be
+   difficult to change it later.
+
+   But it is always a trade off. We could implement a much smarter
+   code generation phase but this would force us to make the now
+   simple phase much more complicated. The bad byte code that is
+   generated can later be optimized if need be and by having the
+   optimization in a seperate phase we can also easily change it if we
+   no longer wants to make the program run faster but use less memory
+   (or physically smaller, in this case)
+
+4. 
+
+      ifeq false
+      bipush 42
+      bipush 12
+      goto end      
+      false
+      bipush 123
+      end
+
+   This program fragment, will depending on the test, either place one
+   or two integers on the stack.
+
+5. The JVM byte code veryfier does a stack-height analysis to
+   determine if two different paths of execution through a program can
+   yield different stack-heights at join-points; that is, where if's,
+   if-then's and while's end and join their alternative executions.
+
+   We believe the JVM does to ensure stack under or overflow, in order
+   to sidestep any and all checking involved with operations that pop
+   operands off the stack. This way they statically determine that it
+   is safe to do so, and do not need to use instruction cycles on
+   runtime to ensure that the stack has the proper height. It might
+   also be an issue of security, ensuring that you can't "++" an
+   adress in order to do pointer arithmetic, but actually ensure
+   that there _are_ proper operands for the instruction to handle.

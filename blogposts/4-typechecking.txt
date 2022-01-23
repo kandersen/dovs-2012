@@ -1,0 +1,289 @@
+ABLE OF CONTENTS 
+================= 
+
+1. Overview 
+2. Disambiguation 
+3. Type checking 
+4. Other information 
+
+OVERVIEW 
+======== 
+
+This fourth assignment is all about type-checking, but before we can
+do this, we need to disambiguate the last things in our program.
+
+DISAMBIGUATION 
+============== 
+
+Disambiguation is the proces of disambiguating lvalues, names and
+invokes that we, before hierarchy was build, has been unable to
+disambiguate. Now, we have enough information available to directly
+tell where the fields and methods is contained, and also if they are
+static or nonstatic fields or invokes, respectively. This proces
+should be run before type-cheching (and so it does)
+
+The proces is for the most part simply described on slides:
+
+- If A1 is local -> A2,...,An are non static fields. Easily searched
+for en lenv and we have a helper building non-static fields on the
+rest of a list.
+
+- If A1 is a field -> We use lookup_field in hirarchy and build
+non-static fields for A2-An.
+
+- If A1 is a type -> We use a resolve_name_from_identifier. If we find
+a type, then we construct A2 as a static field and build non-static
+fields on A3-An.
+
+- If (A1-Ak) is a type -> We use lookup_canonicalName, Ak+1 is static,
+and we do as above.
+
+This work well for field and mostly for methods, but rule 3 and 5 for
+invokes are not found, because these are static invokes and
+information sent to name does not contain any fields:
+
+- A1 is unqualified and A2 is the invoking identifier (a1-ak = 2)
+
+- A1-Ak is qualified
+
+Now, we are almost done, but we need to check for forward illegal
+references. We do this by extending info with fields we have seen and
+a variable telling us if we should check for field
+initialization. Thereby, we always do the check if the flag is true
+for checking. The problem now becomes turning this on and off:
+
+- When we are in the init of a field, we should set the flag to true
+- But on the left han side of an assignment, it is valid to use
+- unitialized values, so we need to turn this of for left hand sides.
+
+This results in all green for disambiguation with the joos1 flag.
+
+TYPE CHECKING 
+============= 
+
+General Typechecking 
+------------------------ 
+
+The object of this phase is to typecheck the entire program and insure
+it is actually type safe (atlest as much as possible from a static
+point of view).
+
+For the most part it is yet another tree traversal with more node
+transformations. Since we are interrested in the type correctness of
+the program almost all of the work is done starting from statements
+and the down through lvalues and expressions. For the most part simple
+transformation are done turning DAst nodes into their corresponding
+TAst node annotated with their type if needed. Once the sub trees have
+been type checked we are in a position to type check the current
+content since alot of the checks depend on what types the sup
+expressions have.
+
+Method Invocation 
+---------------------- 
+
+The method invocation part of the typechecking consists of three
+different cases. From the disambiguationast we have three different
+method invocation types. Nonstatic Static and Simple invokes. Simple
+invokes are handle by simply binding them to a nonstatic invoke with
+This as the base expression and then the lookup for the method is
+performed inside the current class. Static invokes are handled by
+doing a lookup with the namedType as host with the
+single_method_from_name function whoes purpose is to either return a
+canonical name method_type pair or report the error that no such
+method is found. For nonstatic invokes we first type check the
+expression in order to determine what type the method invocation
+actually has. If it is a namedType we use this as the host to do the
+lookup to try and find the corresponding method. For array we report
+the error that no array methods are allowed. For simple types and null
+we throw a non reference reciever error.
+
+Helper function single_method_from_name 
+---------------------------------------
+
+The single_method_from_name function does the actual lookup for a
+method and takes thrown exceptions into account. It uses two different
+criterias to judge if a sutable method has been found. The first
+criteria
+
+let method_formals_criteria (fun (cname, mt) -> List.map (fun exp ->
+exp.TAst.exp_type) formals = mt.T.method_formals)
+
+is used to weed out all methods with the wrong formals. Based on the
+number of methods with correct formals the second criteria
+changes. The first option is
+
+(fun (cname, mt) -> throwok (nameset_from_list mt.T.method_throws)
+info.exceptions pos info)
+
+this option is used when atmost 1 method is found. The cirteria simply
+insure that for every checked exception the current method can throw
+the enclosing method/class also declares the same exception or a super
+type of it. The second version of the second criteria is
+
+(fun (cname, mt) -> throwok exception_set info.exceptions pos info) 
+
+which is used when dealing with multible abstract methods. If we have
+more abstract methods we cannot use the first criteria since now the
+enclosing class/method must throw only the intersection of exceptions
+between all the abstract methods. This is what the exception_set
+is. It is calculated as a fold over the list of exceptions thown by
+the individual abstract methods. It uses the function
+special_set_inter which calculates the special intersection defined on
+slide 34. Also worth noting is that special_set_inter uses a different
+throwok version then every other part of the typechecker. This is
+becuase the standart throwok function also reports an error is it
+detects a flaw but this is not what special_set_inter needs, it simply
+needs the boolean value to determine if the exception is in the
+intersection or not.
+
+The single_method_from_name function closely resembles what is done in
+the case of constructors but this case is more simple since we don't
+need to worry about multiple abstract constructors so we can make do
+with the first criteria.
+
+ArrayLength 
+----------------------- 
+
+ArrayLength is handled by checking the type of an lvalue everytime one
+is transformed in tcheck_exp. If an lvalue has array type after it has
+been transformed we can check if the field name is length and
+transform it into the correct TAst node. If the name is not length an
+error is thrown For array methods we check if a nonstatic invoke has
+array type and throw an error if it has.
+
+Throwok function 
+---------------------- 
+
+This function is used to determine if a set of exceptions are
+correctly declared form a specific content. If we encounter a new
+instance creation or a method invocation we need to be sure that the
+enclosing content has declared the proper exceptions to be
+thrown. This function determines if this is the case and will report
+an error if a problem is found. It is one big condition that must be
+true in order for the thrown exceptions to be declared porperly in the
+current content. The heart of the function is
+
+List.for_all (fun alpha -> 
+assignable error alpha tenv 
+|| assignable runtime_exception alpha tenv 
+|| if List.exists (fun beta -> 
+assignable beta alpha tenv) 
+(List.map (fun n -> T.Named n) (NameSet.elements b)) 
+then true 
+else error_illegal_throws alpha pos) 
+
+where we first determine if the given exception is an error or a
+runtime exception since these are unchecked any sub type of these can
+be thrown at will without the enclosing class declaring any
+exceptions. It the moves on to check if the second set contains an
+exception such that the current exception is assignable to this. If
+this is the case its all fine but if no second exception is found this
+means that the current content does not declare its throws properly
+and an error is reported. This implementation is responsible for
+reporting the errors on its own but the code also contains a pure
+boolean version which simply return true or false. It is meant to
+mimic the definition of throwok in the slides.
+
+The info record 
+------------------ 
+
+This record has been use to transfer information between functions in
+order to perform certain checks. For example to check if an assignment
+is made to a final field, each time we type check a lvalue from inside
+an assignment expression the is_assignment boolean is set to true so
+it is possible in the type checking of the lvalue to check if the
+actual field is final and report an error if it is. The additional
+information in the info record is used in a similar way to remember
+information that might be need furter down the type checking.
+
+Protected fields 
+------------------ 
+
+For this we defined to helper methods to assist us. They are used and
+implemented according to the specification one checking for valid
+protected nonstatic access and one checking for valid protected static
+access.
+
+The nonstatic checker is used in NonstaticField and NonstaticInvoke
+accordingly and there are no surprises in the static counter parts.
+
+
+TYPE INFORMATION 
+================ 
+
+Explain why local variable accesses are preferred to field accesses in
+the disambiguation process:
+----------------------------------------------------------------------
+
+This is simply a scope thing. If we have a name to disambiguate in a
+method taking a parameter a and we have a field a in the class, we
+would expect the local param a to shadow the field a.
+
+Give a reason why we need a forward field reference check.: 
+---------------------------------------------------------------------- 
+
+The need is actually debateable, since every type in Java has a
+default value (null for complex types). The only intentional use of
+forward references would be to use their default values, and so it
+does not limit the expressability of fields to disallow forward field
+reference. No one in practice would use forward references and a lot
+of potential errors can be caught by doings this check.
+
+Another problem would be circular references, which does do not make
+sense. So we avoid a lot of problems by introducing this check.
+
+
+Explain the difference between the static type of an expression (the 
+type bound by the exp_type field) and the dynamic type of an 
+expression (the type of the expression at run time): 
+---------------------------------------------------------------------- 
+
+The static type of an expression doesn't have to be the actual run
+time type of the same expression. In java we have both interfaces and
+super classes and these both influence the run time type of an
+expression. If an expression has static type A at run time i may have
+any type B such that B is a sub type of A. Similar for interface one
+can declare an expression of interface type but at run time this
+expression will have the type of some implementation of that interface
+or an error occurs. The promise the type checking provide is that the
+static type actually type checks in the current content but it is not
+certain that the static type will be the same as the run time
+type. This becomes even more complicated if we use the joos 2 feature
+of closest match on methods and constructors since what appears to be
+obvious at compile time turns out to something completely different at
+run time.
+
+
+Explain why we do not check whether an invoked method is abstract or 
+not: 
+---------------------------------------------------------------------- 
+
+We don't need to check this since at run time abstract methods cannot 
+exists since it is impossible to instantiate an instance of an 
+abstract class or interface. It still makes sense to have abstract 
+methods at compile time since any static type can be any sub type at 
+run time. If the run time type is not abstract the method call can be 
+performed. The is most apparent with interfaces. One can create a 
+field or local variable of an interface type and then invoke a method 
+on this field or local variable. This of course does not make any 
+sense at compile time since all interface methods are abstract but 
+since it is impossible to actaully instantiate an instance of an 
+interface at run time an implementation of the interface must have 
+been provided and stored in the field or local before the actual 
+execution will take place. Maybe no implementaion has been provided 
+then the field or local simple holdes a null reference since it is 
+impossible to create an instance of an interface or abstract class. So 
+basically we don't need to check abstract methods since they cannot 
+exist at run time either an implementation has been provided or a null 
+pointer exception occures. 
+
+
+Give a reason why the forward field reference check makes sense when
+for instance public int foo = this.foo; is still allowed:
+----------------------------------------------------------------------
+
+One could argue, that if I say foo = bar, and bar = 0 is above foo (no
+illegal forward references) then the compiler could optimize foo =
+0. This would save a lookup. When having This in front, we change from
+a statically known value to a run time known value, and therefore,
+this is allowed.
